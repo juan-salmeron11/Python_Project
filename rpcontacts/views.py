@@ -32,8 +32,21 @@ class Window(QMainWindow):
         self.layout = QHBoxLayout()
         self.centralWidget.setLayout(self.layout)
         self.contactsModel = ContactsModel()
-        self.setupUI()
+        self.initWindow()
 
+    def initWindow(self):
+        # Create buttons
+        self.inventoryButton = QPushButton("Inventory")
+        self.contactsButton = QPushButton("Contacts")
+        self.salesButton = QPushButton("Sales")
+        # Lay out the GUI...
+        layout = QVBoxLayout()
+        layout.addWidget(self.inventoryButton)
+        layout.addWidget(self.contactsButton)
+        self.contactsButton.clicked.connect(self.setupUI)
+        layout.addWidget(self.salesButton)
+        self.layout.addLayout(layout)
+        
     def setupUI(self):
             """Setup the main window's GUI."""
 
