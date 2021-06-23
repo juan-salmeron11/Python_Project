@@ -21,6 +21,21 @@ def _createContactsTable():
         """
     )
 
+def _createInventoryTable():
+    """Create the contacts table in the database."""
+    createTableQuery = QSqlQuery()
+    return createTableQuery.exec(
+        """
+        CREATE TABLE IF NOT EXISTS inventory (
+            id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
+            orderNum VARCHAR(40) NOT NULL,
+            name VARCHAR(50) NOT NULL,
+            phone VARCHAR(40),
+            total VARCHAR(40) NOT NULL
+        )
+        """
+    )
+
 def createConnection(databaseName):
 
     """Create and open a database connection."""
@@ -37,5 +52,6 @@ def createConnection(databaseName):
         )
         return False
 
+    _createInventoryTable()
     _createContactsTable()
     return True

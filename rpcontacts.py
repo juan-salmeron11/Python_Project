@@ -5,8 +5,7 @@
 """This module provides RP Contacts entry point script."""
 
 from rpcontacts.main import main
-from inventory.inventory_main import  i_main
 
 
-main()
-i_main()
+if __name__ == "__main__":
+    main()

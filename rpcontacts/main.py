@@ -14,7 +14,7 @@ def main():
     # Create the application
     app = QApplication(sys.argv)
     # Connect to the database before creating any window
-    if not createConnection("contacts.sqlite"):
+    if not createConnection("project_db.sqlite"):
         sys.exit(1)
     # Create the main window
     win = Window()
