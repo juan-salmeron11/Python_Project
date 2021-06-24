@@ -53,7 +53,12 @@ class Window(QMainWindow):
         
     def contactsSetupUI(self):
         """Setup the main window's GUI."""
-
+        # Clear previous layout
+        self.clearLayout()
+        # Disable the buttons
+        self.inventoryButton.setEnabled(True)
+        self.contactsButton.setEnabled(False)
+        self.salesButton.setEnabled(True)
         # Create the table view widget
         self.table = QTableView()
         self.table.setModel(self.contactsModel.model)
@@ -77,6 +82,12 @@ class Window(QMainWindow):
 
     def inventorySetupUI(self):
         """Setup the inventory window's GUI."""
+        # Clear previous layout
+        self.clearLayout()
+        # Disable button
+        self.inventoryButton.setEnabled(False)
+        self.contactsButton.setEnabled(True)
+        self.salesButton.setEnabled(True)
         # Create the inventory table view widget
         self.table = QTableView()
         self.table.setModel(self.inventoryModel.model)
@@ -100,6 +111,12 @@ class Window(QMainWindow):
 
     def salesSetupUI(self):
         """Setup the sales window's GUI."""
+        # Clear previous layout
+        self.clearLayout()
+        # Disable buton
+        self.inventoryButton.setEnabled(True)
+        self.contactsButton.setEnabled(True)
+        self.salesButton.setEnabled(False)
         # Create the sales table
         self.salesTable = QTableView()
         self.salesTable.setModel(self.salesModel.model)
@@ -168,6 +185,13 @@ class Window(QMainWindow):
 
         if messageBox == QMessageBox.Ok:
             self.contactsModel.clearContacts()
+
+    def clearLayout(self):
+        while self.layout.count():
+            child = self.layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+        self.initWindow()
 
 
 class AddDialog(QDialog):
@@ -293,5 +317,4 @@ class AddDialog_i(QDialog):
             return
 
         super().accept()
-
 
