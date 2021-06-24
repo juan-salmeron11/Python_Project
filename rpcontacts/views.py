@@ -18,8 +18,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
 
 )
-from .model import ContactsModel
-from .model import InventoryModel
+from .model import ContactsModel, InventoryModel, SalesModel
 
 class Window(QMainWindow):
     """Main Window."""
@@ -32,8 +31,9 @@ class Window(QMainWindow):
         self.setCentralWidget(self.centralWidget)
         self.layout = QHBoxLayout()
         self.centralWidget.setLayout(self.layout)
-        self.contactsModel = ContactsModel()
         self.inventoryModel = InventoryModel()
+        self.contactsModel = ContactsModel()
+        self.salesModel = SalesModel()
         self.initWindow()
 
     def initWindow(self):
@@ -44,59 +44,71 @@ class Window(QMainWindow):
         # Lay out the GUI...
         layout = QVBoxLayout()
         layout.addWidget(self.inventoryButton)
-        layout.addWidget(self.contactsButton)
-        self.contactsButton.clicked.connect(self.setupUI)
         self.inventoryButton.clicked.connect(self.inventorySetupUI)
+        layout.addWidget(self.contactsButton)
+        self.contactsButton.clicked.connect(self.contactsSetupUI)
         layout.addWidget(self.salesButton)
+        self.salesButton.clicked.connect(self.salesSetupUI)
         self.layout.addLayout(layout)
         
-    def setupUI(self):
-            """Setup the main window's GUI."""
+    def contactsSetupUI(self):
+        """Setup the main window's GUI."""
 
-            # Create the table view widget
-            self.table = QTableView()
-            self.table.setModel(self.contactsModel.model)
-            self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
-            self.table.resizeColumnsToContents()
-            # Create buttons
-            self.addButton = QPushButton("Add...")
-            self.addButton.clicked.connect(self.openAddDialog)
-            self.deleteButton = QPushButton("Delete")
-            self.deleteButton.clicked.connect(self.deleteContact)
-            self.clearAllButton = QPushButton("Clear All")
-            self.clearAllButton.clicked.connect(self.clearContacts)
-            # Lay out the GUI
-            layout = QVBoxLayout()
-            layout.addWidget(self.addButton)
-            layout.addWidget(self.deleteButton)
-            layout.addStretch()
-            layout.addWidget(self.clearAllButton)
-            self.layout.addWidget(self.table)
-            self.layout.addLayout(layout)
+        # Create the table view widget
+        self.table = QTableView()
+        self.table.setModel(self.contactsModel.model)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.resizeColumnsToContents()
+        # Create buttons
+        self.addButton = QPushButton("Add...")
+        self.addButton.clicked.connect(self.openAddDialog)
+        self.deleteButton = QPushButton("Delete")
+        self.deleteButton.clicked.connect(self.deleteContact)
+        self.clearAllButton = QPushButton("Clear All")
+        self.clearAllButton.clicked.connect(self.clearContacts)
+        # Lay out the GUI
+        layout = QVBoxLayout()
+        layout.addWidget(self.addButton)
+        layout.addWidget(self.deleteButton)
+        layout.addStretch()
+        layout.addWidget(self.clearAllButton)
+        self.layout.addWidget(self.table)
+        self.layout.addLayout(layout)
 
     def inventorySetupUI(self):
-            """Setup the main window's GUI."""
+        """Setup the inventory window's GUI."""
+        # Create the inventory table view widget
+        self.table = QTableView()
+        self.table.setModel(self.inventoryModel.model)
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.resizeColumnsToContents()
+        # Create buttons
+        self.addButton = QPushButton("Add...")
+        self.addButton.clicked.connect(self.openAddDialog_i)
+        self.deleteButton = QPushButton("Delete")
+        self.deleteButton.clicked.connect(self.deleteOrder)
+        self.clearAllButton = QPushButton("Clear All")
+        self.clearAllButton.clicked.connect(self.clearContacts)
+        # Lay out the GUI
+        layout = QVBoxLayout()
+        layout.addWidget(self.addButton)
+        layout.addWidget(self.deleteButton)
+        layout.addStretch()
+        layout.addWidget(self.clearAllButton)
+        self.layout.addWidget(self.table)
+        self.layout.addLayout(layout)
 
-            # Create the table view widget
-            self.table = QTableView()
-            self.table.setModel(self.inventoryModel.model)
-            self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
-            self.table.resizeColumnsToContents()
-            # Create buttons
-            self.addButton = QPushButton("Add...")
-            self.addButton.clicked.connect(self.openAddDialog_i)
-            self.deleteButton = QPushButton("Delete")
-            self.deleteButton.clicked.connect(self.deleteOrder)
-            self.clearAllButton = QPushButton("Clear All")
-            self.clearAllButton.clicked.connect(self.clearContacts)
-            # Lay out the GUI
-            layout = QVBoxLayout()
-            layout.addWidget(self.addButton)
-            layout.addWidget(self.deleteButton)
-            layout.addStretch()
-            layout.addWidget(self.clearAllButton)
-            self.layout.addWidget(self.table)
-            self.layout.addLayout(layout)
+    def salesSetupUI(self):
+        """Setup the sales window's GUI."""
+        # Create the sales table
+        self.salesTable = QTableView()
+        self.salesTable.setModel(self.salesModel.model)
+        self.salesTable.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.salesTable.resizeColumnsToContents()
+        # Lay out the GUI
+        layout = QVBoxLayout()
+        self.layout.addWidget(self.salesTable)
+        self.layout.addLayout(layout)
 
     def openAddDialog(self):
         """Open the Add Contact dialog."""

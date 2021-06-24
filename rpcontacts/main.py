@@ -6,7 +6,7 @@
 import sys
 
 from PyQt5.QtWidgets import QApplication
-from .database import createConnection
+from .database import createConnection, createAllTables
 from .views import Window
 
 def main():
@@ -16,6 +16,7 @@ def main():
     # Connect to the database before creating any window
     if not createConnection("project_db.sqlite"):
         sys.exit(1)
+    createAllTables()
     # Create the main window
     win = Window()
     win.show()

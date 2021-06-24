@@ -36,8 +36,26 @@ def _createInventoryTable():
         """
     )
 
-def createConnection(databaseName):
+def _createSalesTable():
+    """Creates sales table in the database."""
+    createTableQuery = QSqlQuery()
+    return createTableQuery.exec(
+        """
+        CREATE TABLE IF NOT EXISTS sales (
+            ordernum INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
+            name VARCHAR(40) NOT NULL,
+            total VARCHAR(40)
+        )
+        """
+    )
 
+def createAllTables():
+    """Function that creates all tables from main once a connection is stablished"""
+    _createContactsTable()
+    _createSalesTable()
+    _createInventoryTable()
+
+def createConnection(databaseName):
     """Create and open a database connection."""
     connection = QSqlDatabase.addDatabase("QSQLITE")
     connection.setDatabaseName(databaseName)
@@ -46,12 +64,11 @@ def createConnection(databaseName):
 
         QMessageBox.warning(
             None,
-            "RP Contact",
+            ""
+            "project_db.sqlite",
             f"Database Error: {connection.lastError().text()}",
 
         )
         return False
 
-    _createInventoryTable()
-    _createContactsTable()
     return True

@@ -17,9 +17,7 @@ class ContactsModel:
 
 
     @staticmethod
-
     def _createModel():
-
         """Create and set up the model."""
         tableModel = QSqlTableModel()
         tableModel.setTable("contacts")
@@ -31,7 +29,6 @@ class ContactsModel:
         return tableModel
 
     def addContact(self, data):
-
         """Add a contact to the database."""
         rows = self.model.rowCount()
         self.model.insertRows(rows, 1)
@@ -47,7 +44,6 @@ class ContactsModel:
         self.model.select()
 
     def clearContacts(self):
-
         """Remove all contacts in the database."""
         self.model.setEditStrategy(QSqlTableModel.OnManualSubmit)
         self.model.removeRows(0, self.model.rowCount())
@@ -62,9 +58,7 @@ class InventoryModel:
 
 
     @staticmethod
-
     def _createModel():
-
         """Create and set up the model."""
         tableModel = QSqlTableModel()
         tableModel.setTable("inventory")
@@ -76,7 +70,6 @@ class InventoryModel:
         return tableModel
 
     def addContact(self, data):
-
         """Add an order to the database."""
         rows = self.model.rowCount()
         self.model.insertRows(rows, 1)
@@ -99,3 +92,24 @@ class InventoryModel:
         self.model.submitAll()
         self.model.setEditStrategy(QSqlTableModel.OnFieldChange)
         self.model.select()
+
+
+class SalesModel:
+    def __init__(self):
+        self.model = self._createModel()
+
+    @staticmethod
+    def _createModel():
+        """Create and set up the model for sales Table"""
+        tableModel = QSqlTableModel()
+        tableModel.setTable("sales")
+        tableModel.setEditStrategy(QSqlTableModel.OnFieldChange)
+        tableModel.select()
+        headers = ("Order #:", "Name:", "Total:")
+        for columnIndex, header in enumerate(headers):
+            tableModel.setHeaderData(columnIndex, Qt.Horizontal, header)
+        return tableModel
+
+    def addEntry(self):
+        rows = self.model.rowCount()
+        self.model.insertRows(rows, 1)
