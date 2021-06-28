@@ -23,7 +23,7 @@ class ContactsModel:
         tableModel.setTable("contacts")
         tableModel.setEditStrategy(QSqlTableModel.OnFieldChange)
         tableModel.select()
-        headers = ("ID", "Name", "Job", "Email")
+        headers = ("ID", "Name", "Phone")
         for columnIndex, header in enumerate(headers):
             tableModel.setHeaderData(columnIndex, Qt.Horizontal, header)
         return tableModel
@@ -106,7 +106,7 @@ class SalesModel:
         tableModel.setTable("sales")
         tableModel.setEditStrategy(QSqlTableModel.OnFieldChange)
         tableModel.select()
-        headers = ("Order #:", "Name:", "Total:")
+        headers = ("ID:", "Order #" ,"Name:", "Total:")
         for columnIndex, header in enumerate(headers):
             tableModel.setHeaderData(columnIndex, Qt.Horizontal, header)
         return tableModel

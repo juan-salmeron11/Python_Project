@@ -70,6 +70,7 @@ class Window(QMainWindow):
         self.table.setModel(self.contactsModel.model)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.resizeColumnsToContents()
+        self.table.setColumnHidden(0, True)
         # Create buttons
         self.addButton = QPushButton("Add...")
         self.addButton.clicked.connect(self.openAddDialog)
@@ -100,6 +101,7 @@ class Window(QMainWindow):
         self.table.setModel(self.inventoryModel.model)
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.resizeColumnsToContents()
+        self.table.setColumnHidden(0, True)
         # Create buttons
         self.addButton = QPushButton("Add...")
         self.addButton.clicked.connect(self.openAddDialog_i)
@@ -133,17 +135,17 @@ class Window(QMainWindow):
         self.salesTable.setModel(self.salesModel.model)
         self.salesTable.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.salesTable.resizeColumnsToContents()
+        self.salesTable.setColumnHidden(0, True)
         r = self.salesTable.currentIndex()
         self.cursor.exec("select total from sales")
         x =[]
-        y = 0
         z= 0
         while self.cursor.next():
             y = self.cursor.value(0)
             x.append(float(y))
         for i in x:
             z+=i
-        self.totals = QLabel(f"{x},\n{z}")
+        self.totals = QLabel(f"Sales {x},\n Total: {round(z,2)}")
         # Lay out the GUI
         layout = QVBoxLayout()
         self.layout.addWidget(self.totals)
@@ -205,7 +207,8 @@ class Window(QMainWindow):
         r = self.table.currentIndex()
         x = []
         x.append(r.sibling(row, 1).data())
-        x.append(r.sibling(row, 3).data())
+        x.append(r.sibling(row, 2).data())
+        x.append(r.sibling(row, 4).data())
         if row < 0:
             return
         messageBox = QMessageBox.warning(
@@ -259,15 +262,12 @@ class AddDialog(QDialog):
         # Create line edits for data fields
         self.nameField = QLineEdit()
         self.nameField.setObjectName("Name")
-        self.jobField = QLineEdit()
-        self.jobField.setObjectName("Job")
-        self.emailField = QLineEdit()
-        self.emailField.setObjectName("Email")
+        self.phoneField = QLineEdit()
+        self.phoneField.setObjectName("Phone")
         # Lay out the data fields
         layout = QFormLayout()
         layout.addRow("Name:", self.nameField)
-        layout.addRow("Job:", self.jobField)
-        layout.addRow("Email:", self.emailField)
+        layout.addRow("Phone:", self.phoneField)
         self.layout.addLayout(layout)
         # Add standard buttons to the dialog and connect them
         self.buttonsBox = QDialogButtonBox(self)
@@ -282,7 +282,7 @@ class AddDialog(QDialog):
     def accept(self):
         """Accept the data provided through the dialog."""
         self.data = []
-        for field in (self.nameField, self.jobField, self.emailField):
+        for field in (self.nameField, self.phoneField):
             if not field.text():
                 QMessageBox.critical(
                     self,
@@ -310,7 +310,7 @@ class AddDialog_i(QDialog):
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.data = None
-
+        self.cursor = QSqlQuery()
         self.setupUI()
 
 
@@ -320,6 +320,12 @@ class AddDialog_i(QDialog):
         # Create line edits for data fields
         self.orderField = QLineEdit()
         self.orderField.setObjectName("Order")
+        self.cursor.exec("SELECT orderNum FROM inventory ORDER BY ID DESC LIMIT 1")
+        while self.cursor.next():
+            y = int(self.cursor.value(0))
+            y += 1
+            self.orderField.setText(f"{y}")
+        #self.orderField.setText(self.cursor.value(0))
         self.nameField = QLineEdit()
         self.nameField.setObjectName("Name")
         self.phoneField = QLineEdit()
@@ -362,7 +368,6 @@ class AddDialog_i(QDialog):
         if not self.data:
             return
         self.c_data.append(self.nameField.text())
-        self.c_data.append(self.phoneField.text())
         self.c_data.append(self.phoneField.text())
         super().accept()
 
