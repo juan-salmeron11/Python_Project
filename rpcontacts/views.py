@@ -3,6 +3,7 @@
 """This module provides views to manage the contacts table."""
 
 from PyQt5.QtCore import Qt
+from PyQt5.QtSql import QSqlQuery
 from PyQt5.QtWidgets import (
     QHBoxLayout,
     QMainWindow,
@@ -16,6 +17,7 @@ from PyQt5.QtWidgets import (
     QFormLayout,
     QLineEdit,
     QMessageBox,
+    QLabel
 
 )
 from .model import ContactsModel, InventoryModel, SalesModel
@@ -36,6 +38,8 @@ class Window(QMainWindow):
         self.salesModel = SalesModel()
       #  self.initWindow()
         self.inventorySetupUI()
+        self.cursor = QSqlQuery()
+        
 
     def initWindow(self):
         # Create buttons
@@ -122,15 +126,31 @@ class Window(QMainWindow):
         self.inventoryButton.setEnabled(True)
         self.contactsButton.setEnabled(True)
         self.salesButton.setEnabled(False)
+
+
         # Create the sales table
         self.salesTable = QTableView()
         self.salesTable.setModel(self.salesModel.model)
         self.salesTable.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.salesTable.resizeColumnsToContents()
+        r = self.salesTable.currentIndex()
+        self.cursor.exec("select total from sales")
+        x =[]
+        y = 0
+        z= 0
+        while self.cursor.next():
+            y = self.cursor.value(0)
+            x.append(float(y))
+        for i in x:
+            z+=i
+        self.totals = QLabel(f"{x},\n{z}")
         # Lay out the GUI
         layout = QVBoxLayout()
+        self.layout.addWidget(self.totals)
         self.layout.addWidget(self.salesTable)
         self.layout.addLayout(layout)
+
+
 
     def openAddDialog(self):
         """Open the Add Contact dialog."""
@@ -180,6 +200,7 @@ class Window(QMainWindow):
 
     def paid(self):
         """Delete the selected contact from the database."""
+
         row = self.table.currentIndex().row()
         r = self.table.currentIndex()
         x = []
