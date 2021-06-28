@@ -43,6 +43,7 @@ class ContactsModel:
         self.model.submitAll()
         self.model.select()
 
+
     def clearContacts(self):
         """Remove all contacts in the database."""
         self.model.setEditStrategy(QSqlTableModel.OnManualSubmit)
@@ -110,6 +111,10 @@ class SalesModel:
             tableModel.setHeaderData(columnIndex, Qt.Horizontal, header)
         return tableModel
 
-    def addEntry(self):
+    def addEntry(self, data):
         rows = self.model.rowCount()
         self.model.insertRows(rows, 1)
+        for column, field in enumerate(data):
+            self.model.setData(self.model.index(rows, column + 1), field)
+        self.model.submitAll()
+        self.model.select()

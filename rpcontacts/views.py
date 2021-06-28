@@ -25,8 +25,8 @@ class Window(QMainWindow):
     def __init__(self, parent=None):
         """Initializer."""
         super().__init__(parent)
-        self.setWindowTitle("RP Contacts")
-        self.resize(550, 250)
+        self.setWindowTitle("Main Menu")
+        self.resize(800, 500)
         self.centralWidget = QWidget()
         self.setCentralWidget(self.centralWidget)
         self.layout = QHBoxLayout()
@@ -34,7 +34,8 @@ class Window(QMainWindow):
         self.inventoryModel = InventoryModel()
         self.contactsModel = ContactsModel()
         self.salesModel = SalesModel()
-        self.initWindow()
+      #  self.initWindow()
+        self.inventorySetupUI()
 
     def initWindow(self):
         # Create buttons
@@ -53,6 +54,7 @@ class Window(QMainWindow):
         
     def contactsSetupUI(self):
         """Setup the main window's GUI."""
+        self.setWindowTitle("Contacts")
         # Clear previous layout
         self.clearLayout()
         # Disable the buttons
@@ -82,6 +84,7 @@ class Window(QMainWindow):
 
     def inventorySetupUI(self):
         """Setup the inventory window's GUI."""
+        self.setWindowTitle("Inventory")
         # Clear previous layout
         self.clearLayout()
         # Disable button
@@ -98,8 +101,8 @@ class Window(QMainWindow):
         self.addButton.clicked.connect(self.openAddDialog_i)
         self.deleteButton = QPushButton("Delete")
         self.deleteButton.clicked.connect(self.deleteOrder)
-        self.clearAllButton = QPushButton("Clear All")
-        self.clearAllButton.clicked.connect(self.clearContacts)
+        self.clearAllButton = QPushButton("Paid")
+        self.clearAllButton.clicked.connect(self.paid)
         # Lay out the GUI
         layout = QVBoxLayout()
         layout.addWidget(self.addButton)
@@ -111,6 +114,8 @@ class Window(QMainWindow):
 
     def salesSetupUI(self):
         """Setup the sales window's GUI."""
+
+        self.setWindowTitle("Sales")
         # Clear previous layout
         self.clearLayout()
         # Disable buton
@@ -140,17 +145,17 @@ class Window(QMainWindow):
         if dialog.exec() == QDialog.Accepted:
             self.inventoryModel.addContact(dialog.data)
             self.table.resizeColumnsToContents()
+            self.contactsModel.addContact(dialog.c_data)
 
     def deleteContact(self):
         """Delete the selected contact from the database."""
         row = self.table.currentIndex().row()
         if row < 0:
             return
-
         messageBox = QMessageBox.warning(
             self,
             "Warning!",
-            "Do you want to remove the selected contact?",
+            f"Do you want to remove the selected contact?",
             QMessageBox.Ok | QMessageBox.Cancel,
         )
 
@@ -172,6 +177,25 @@ class Window(QMainWindow):
 
             if messageBox == QMessageBox.Ok:
                 self.inventoryModel.deleteContact(row)
+
+    def paid(self):
+        """Delete the selected contact from the database."""
+        row = self.table.currentIndex().row()
+        r = self.table.currentIndex()
+        x = []
+        x.append(r.sibling(row, 1).data())
+        x.append(r.sibling(row, 3).data())
+        if row < 0:
+            return
+        messageBox = QMessageBox.warning(
+            self,
+            "Warning!",
+            f"Do you want to pay {x}",
+            QMessageBox.Ok | QMessageBox.Cancel,
+        )
+
+        if messageBox == QMessageBox.Ok:
+            self.salesModel.addEntry(x)
 
 
     def clearContacts(self):
@@ -301,6 +325,7 @@ class AddDialog_i(QDialog):
     def accept(self):
         """Accept the data provided through the dialog."""
         self.data = []
+        self.c_data = []
         for field in (self.orderField, self.nameField, self.phoneField, self.totalField):
             if not field.text():
                 QMessageBox.critical(
@@ -315,6 +340,8 @@ class AddDialog_i(QDialog):
 
         if not self.data:
             return
-
+        self.c_data.append(self.nameField.text())
+        self.c_data.append(self.phoneField.text())
+        self.c_data.append(self.phoneField.text())
         super().accept()
 
