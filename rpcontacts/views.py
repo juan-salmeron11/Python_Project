@@ -25,7 +25,7 @@ class Window(QMainWindow):
     def __init__(self, parent=None):
         """Initializer."""
         super().__init__(parent)
-        self.setWindowTitle("RP Contacts")
+        self.setWindowTitle("Business Management Tool")
         self.resize(550, 250)
         self.centralWidget = QWidget()
         self.setCentralWidget(self.centralWidget)
@@ -34,7 +34,7 @@ class Window(QMainWindow):
         self.inventoryModel = InventoryModel()
         self.contactsModel = ContactsModel()
         self.salesModel = SalesModel()
-        self.initWindow()
+        self.inventorySetupUI()
 
     def initWindow(self):
         # Create buttons
@@ -98,14 +98,14 @@ class Window(QMainWindow):
         self.addButton.clicked.connect(self.openAddDialog_i)
         self.deleteButton = QPushButton("Delete")
         self.deleteButton.clicked.connect(self.deleteOrder)
-        self.clearAllButton = QPushButton("Clear All")
-        self.clearAllButton.clicked.connect(self.clearContacts)
+        self.paidButton = QPushButton("Paid")
+        self.paidButton.clicked.connect(self.paidOrder)
         # Lay out the GUI
         layout = QVBoxLayout()
         layout.addWidget(self.addButton)
         layout.addWidget(self.deleteButton)
         layout.addStretch()
-        layout.addWidget(self.clearAllButton)
+        layout.addWidget(self.paidButton)
         self.layout.addWidget(self.table)
         self.layout.addLayout(layout)
 
@@ -138,7 +138,7 @@ class Window(QMainWindow):
         """Open the Add Contact dialog."""
         dialog = AddDialog_i(self)
         if dialog.exec() == QDialog.Accepted:
-            self.inventoryModel.addContact(dialog.data)
+            self.inventoryModel.addItem(dialog.data)
             self.table.resizeColumnsToContents()
 
     def deleteContact(self):
@@ -171,7 +171,22 @@ class Window(QMainWindow):
             )
 
             if messageBox == QMessageBox.Ok:
-                self.inventoryModel.deleteContact(row)
+                self.inventoryModel.deleteItem(row)
+
+    def paidOrder(self):
+        """Marks the selected order as paid and sends it to sales table"""
+        row = self.table.currentIndex().row()
+        if row < 0:
+            return
+        messageBox = QMessageBox.warning(
+            self,
+            " ",
+            "The selected order will be marked as paid",
+            QMessageBox.Ok | QMessageBox.Cancel,
+        )
+
+        if messageBox == QMessageBox.Ok:
+            self.inventoryModel.addSales(row)
 
 
     def clearContacts(self):
@@ -261,7 +276,7 @@ class AddDialog_i(QDialog):
 
         """Initializer."""
         super().__init__(parent=parent)
-        self.setWindowTitle("Add Contact")
+        self.setWindowTitle("Add Item")
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.data = None
