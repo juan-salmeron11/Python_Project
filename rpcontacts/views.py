@@ -174,7 +174,6 @@ class Window(QMainWindow):
             x =''
             while self.cursor.next():
                 x = (self.cursor.value(0))
-            print(dialog.c_data[1], result)
             if x == '':
                 self.contactsModel.addContact(dialog.c_data)
 
