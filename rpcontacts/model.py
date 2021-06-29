@@ -17,21 +17,18 @@ class ContactsModel:
 
 
     @staticmethod
-
     def _createModel():
-
         """Create and set up the model."""
         tableModel = QSqlTableModel()
         tableModel.setTable("contacts")
         tableModel.setEditStrategy(QSqlTableModel.OnFieldChange)
         tableModel.select()
-        headers = ("ID", "Name", "Job", "Email")
+        headers = ("ID", "Name", "Phone")
         for columnIndex, header in enumerate(headers):
             tableModel.setHeaderData(columnIndex, Qt.Horizontal, header)
         return tableModel
 
     def addContact(self, data):
-
         """Add a contact to the database."""
         rows = self.model.rowCount()
         self.model.insertRows(rows, 1)
@@ -46,8 +43,8 @@ class ContactsModel:
         self.model.submitAll()
         self.model.select()
 
-    def clearContacts(self):
 
+    def clearContacts(self):
         """Remove all contacts in the database."""
         self.model.setEditStrategy(QSqlTableModel.OnManualSubmit)
         self.model.removeRows(0, self.model.rowCount())
@@ -56,6 +53,7 @@ class ContactsModel:
         self.model.select()
 
 class InventoryModel:
+
     def __init__(self):
         self.model = self._createModel()
 
@@ -72,7 +70,7 @@ class InventoryModel:
             tableModel.setHeaderData(columnIndex, Qt.Horizontal, header)
         return tableModel
 
-    def addItem(self, data):
+    def addContact(self, data):
         """Add an order to the database."""
         rows = self.model.rowCount()
         self.model.insertRows(rows, 1)
@@ -81,33 +79,37 @@ class InventoryModel:
         self.model.submitAll()
         self.model.select()
 
-    def deleteItem(self, row):
+    def deleteContact(self, row):
         """Remove an order from the database."""
         self.model.removeRow(row)
         self.model.submitAll()
         self.model.select()
 
-    def addSales(self, row):
+    def clearContacts(self):
+
+        """Remove all contacts in the database."""
+        self.model.setEditStrategy(QSqlTableModel.OnManualSubmit)
+        self.model.removeRows(0, self.model.rowCount())
+        self.model.submitAll()
+        self.model.setEditStrategy(QSqlTableModel.OnFieldChange)
+        self.model.select()
 
 
-        print(s_data)
-        # SalesModel.addEntry(s_data)
-
-class SalesModel(InventoryModel):
+class SalesModel:
     def __init__(self):
         self.model = self._createModel()
 
     @staticmethod
     def _createModel():
         """Create and set up the model for sales Table"""
-        SalesTableModel = QSqlTableModel()
-        SalesTableModel.setTable("sales")
-        SalesTableModel.setEditStrategy(QSqlTableModel.OnFieldChange)
-        SalesTableModel.select()
-        headers = ("Order #:", "Name:", "Total:")
+        tableModel = QSqlTableModel()
+        tableModel.setTable("sales")
+        tableModel.setEditStrategy(QSqlTableModel.OnFieldChange)
+        tableModel.select()
+        headers = ("ID:", "Order #" ,"Name:", "Total:")
         for columnIndex, header in enumerate(headers):
-            SalesTableModel.setHeaderData(columnIndex, Qt.Horizontal, header)
-        return SalesTableModel
+            tableModel.setHeaderData(columnIndex, Qt.Horizontal, header)
+        return tableModel
 
     def addEntry(self, data):
         rows = self.model.rowCount()

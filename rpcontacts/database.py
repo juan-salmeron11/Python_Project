@@ -15,8 +15,7 @@ def _createContactsTable():
         CREATE TABLE IF NOT EXISTS contacts (
             id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
             name VARCHAR(40) NOT NULL,
-            job VARCHAR(50),
-            email VARCHAR(40) NOT NULL
+            phone VARCHAR(40) NOT NULL
         )
         """
     )
@@ -42,7 +41,8 @@ def _createSalesTable():
     return createTableQuery.exec(
         """
         CREATE TABLE IF NOT EXISTS sales (
-            ordernum INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
+            id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE NOT NULL,
+            orderNum VARCHAR(40),
             name VARCHAR(40) NOT NULL,
             total VARCHAR(40)
         )
