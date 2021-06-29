@@ -325,7 +325,6 @@ class AddDialog_i(QDialog):
             y = int(self.cursor.value(0))
             y += 1
             self.orderField.setText(f"{y}")
-        #self.orderField.setText(self.cursor.value(0))
         self.nameField = QLineEdit()
         self.nameField.setObjectName("Name")
         self.phoneField = QLineEdit()
