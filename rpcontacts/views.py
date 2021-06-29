@@ -2,6 +2,7 @@
 
 """This module provides views to manage the contacts table."""
 
+from datetime import date
 from PyQt5.QtCore import Qt
 from PyQt5.QtSql import QSqlQuery
 from PyQt5.QtWidgets import (
@@ -36,7 +37,6 @@ class Window(QMainWindow):
         self.inventoryModel = InventoryModel()
         self.contactsModel = ContactsModel()
         self.salesModel = SalesModel()
-      #  self.initWindow()
         self.inventorySetupUI()
         self.cursor = QSqlQuery()
         
@@ -45,7 +45,7 @@ class Window(QMainWindow):
         # Create buttons
         self.inventoryButton = QPushButton("Inventory")
         self.contactsButton = QPushButton("Contacts")
-        self.salesButton = QPushButton("Sales")
+        self.salesButton = QPushButton("Daily Sales")
         # Lay out the GUI...
         layout = QVBoxLayout()
         layout.addWidget(self.inventoryButton)
@@ -58,6 +58,7 @@ class Window(QMainWindow):
         
     def contactsSetupUI(self):
         """Setup the main window's GUI."""
+
         self.setWindowTitle("Contacts")
         # Clear previous layout
         self.clearLayout()
@@ -120,8 +121,9 @@ class Window(QMainWindow):
 
     def salesSetupUI(self):
         """Setup the sales window's GUI."""
-
-        self.setWindowTitle("Sales")
+        today = date.today()
+        today = today.strftime("%b-%d-%Y")
+        self.setWindowTitle(f"Sales for {today}")
         # Clear previous layout
         self.clearLayout()
         # Disable buton
@@ -145,11 +147,12 @@ class Window(QMainWindow):
             x.append(float(y))
         for i in x:
             z+=i
-        self.totals = QLabel(f"Sales {x},\n Total: {round(z,2)}")
+        self.totals = QLabel(f"Total: {round(z,2)}")
         # Lay out the GUI
         layout = QVBoxLayout()
-        self.layout.addWidget(self.totals)
+
         self.layout.addWidget(self.salesTable)
+        self.layout.addWidget(self.totals)
         self.layout.addLayout(layout)
 
 
@@ -167,7 +170,13 @@ class Window(QMainWindow):
         if dialog.exec() == QDialog.Accepted:
             self.inventoryModel.addContact(dialog.data)
             self.table.resizeColumnsToContents()
-            self.contactsModel.addContact(dialog.c_data)
+            result = self.cursor.exec(f"select * from contacts where phone = '{dialog.c_data[1]}'")
+            x =''
+            while self.cursor.next():
+                x = (self.cursor.value(0))
+            print(dialog.c_data[1], result)
+            if x == '':
+                self.contactsModel.addContact(dialog.c_data)
 
     def deleteContact(self):
         """Delete the selected contact from the database."""
@@ -185,41 +194,48 @@ class Window(QMainWindow):
             self.contactsModel.deleteContact(row)
 
     def deleteOrder(self):
-            """Delete the selected contact from the database."""
+            """Delete the selected row from the database."""
             row = self.table.currentIndex().row()
+            r = self.table.currentIndex()
+            x = ''
+            x = r.sibling(row, 5).data()
+
             if row < 0:
                 return
+            if x == '':
+                messageBox = QMessageBox.warning(
+                    self,
+                    "Warning!",
+                    "Order is not Paid",
+                    QMessageBox.Ok
+                )
 
-            messageBox = QMessageBox.warning(
-                self,
-                "Warning!",
-                "Do you want to remove the selected contact?",
-                QMessageBox.Ok | QMessageBox.Cancel,
-            )
+            else:
+                messageBox = QMessageBox.warning(
+                    self,
+                    "Warning!",
+                    "Do you want to remove the selected Order?",
+                    QMessageBox.Ok | QMessageBox.Cancel,
+                )
 
-            if messageBox == QMessageBox.Ok:
-                self.inventoryModel.deleteContact(row)
+                if messageBox == QMessageBox.Ok:
+                    self.inventoryModel.deleteContact(row)
 
     def paid(self):
-        """Delete the selected contact from the database."""
-
         row = self.table.currentIndex().row()
         r = self.table.currentIndex()
+        today = date.today()
+        today = today.strftime("%b-%d-%Y")
         x = []
+        y = r.sibling(row,0).data()
+        self.cursor.exec(f"update inventory set datePaid = '{today}' where id = {y}")
         x.append(r.sibling(row, 1).data())
         x.append(r.sibling(row, 2).data())
         x.append(r.sibling(row, 4).data())
         if row < 0:
             return
-        messageBox = QMessageBox.warning(
-            self,
-            "Warning!",
-            f"Do you want to pay {x}",
-            QMessageBox.Ok | QMessageBox.Cancel,
-        )
-
-        if messageBox == QMessageBox.Ok:
-            self.salesModel.addEntry(x)
+        self.inventoryModel.updateModel()
+        self.salesModel.addEntry(x)
 
 
     def clearContacts(self):
@@ -227,7 +243,7 @@ class Window(QMainWindow):
         messageBox = QMessageBox.warning(
             self,
             "Warning!",
-            "Do you want to remove all your contacts?",
+            "Do you want to Clear All",
             QMessageBox.Ok | QMessageBox.Cancel,
         )
 
@@ -240,6 +256,7 @@ class Window(QMainWindow):
             if child.widget():
                 child.widget().deleteLater()
         self.initWindow()
+
 
 
 class AddDialog(QDialog):
@@ -282,6 +299,7 @@ class AddDialog(QDialog):
     def accept(self):
         """Accept the data provided through the dialog."""
         self.data = []
+        s
         for field in (self.nameField, self.phoneField):
             if not field.text():
                 QMessageBox.critical(
@@ -301,12 +319,12 @@ class AddDialog(QDialog):
 
 
 class AddDialog_i(QDialog):
-    """Add Contact dialog."""
+    """Add Inventory dialog."""
     def __init__(self, parent=None):
 
         """Initializer."""
         super().__init__(parent=parent)
-        self.setWindowTitle("Add Contact")
+        self.setWindowTitle("Add Order")
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
         self.data = None
@@ -315,11 +333,11 @@ class AddDialog_i(QDialog):
 
 
     def setupUI(self):
-        """Setup the Add Contact dialog's GUI."""
+        """Setup the Add Order dialog's GUI."""
 
         # Create line edits for data fields
         self.orderField = QLineEdit()
-        self.orderField.setObjectName("Order")
+        self.orderField.setObjectName("Order #")
         self.cursor.exec("SELECT orderNum FROM inventory ORDER BY ID DESC LIMIT 1")
         while self.cursor.next():
             y = int(self.cursor.value(0))
@@ -352,12 +370,17 @@ class AddDialog_i(QDialog):
         """Accept the data provided through the dialog."""
         self.data = []
         self.c_data = []
+        phone = self.phoneField.text()
+        if len(phone) == 10:
+            phone = "("+phone[:3]+") "+phone[3:6]+"-"+phone[6:]
+            self.phoneField.setText(phone)
+
         for field in (self.orderField, self.nameField, self.phoneField, self.totalField):
             if not field.text():
                 QMessageBox.critical(
                     self,
                     "Error!",
-                    f"You must provide a contact's {field.objectName()}",
+                    f"You must provide a {field.objectName()}",
                 )
                 self.data = None  # Reset .data
                 return
