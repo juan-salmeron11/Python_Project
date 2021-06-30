@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # bmt_project/database.py
 
 

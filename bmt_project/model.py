@@ -2,8 +2,7 @@
 
 # bmt_project/model.py
 
-
-"""This module provides a model to manage the contacts table."""
+"""This module provides a model to manage the tables."""
 
 
 from PyQt5.QtCore import Qt
@@ -71,7 +70,6 @@ class InventoryModel:
         return tableModel
 
     def addContact(self, data):
-        """Add an order to the database."""
         rows = self.model.rowCount()
         self.model.insertRows(rows, 1)
         for column, field in enumerate(data):
@@ -84,14 +82,11 @@ class InventoryModel:
         self.model.select()
 
     def deleteContact(self, row):
-        """Remove an order from the database."""
         self.model.removeRow(row)
         self.model.submitAll()
         self.model.select()
 
     def clearContacts(self):
-
-        """Remove all contacts in the database."""
         self.model.setEditStrategy(QSqlTableModel.OnManualSubmit)
         self.model.removeRows(0, self.model.rowCount())
         self.model.submitAll()
@@ -114,6 +109,20 @@ class SalesModel:
         for columnIndex, header in enumerate(headers):
             tableModel.setHeaderData(columnIndex, Qt.Horizontal, header)
         return tableModel
+
+
+    def deleteSale(self, row):
+        self.model.removeRow(row)
+        self.model.submitAll()
+        self.model.select()
+
+
+    def clearSales(self):
+        self.model.setEditStrategy(QSqlTableModel.OnManualSubmit)
+        self.model.removeRows(0, self.model.rowCount())
+        self.model.submitAll()
+        self.model.setEditStrategy(QSqlTableModel.OnFieldChange)
+        self.model.select()
 
     def addEntry(self, data):
         rows = self.model.rowCount()

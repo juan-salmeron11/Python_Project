@@ -73,7 +73,7 @@ class Window(QMainWindow):
         self.table.resizeColumnsToContents()
         self.table.setColumnHidden(0, True)
         # Create buttons
-        self.addButton = QPushButton("Add...")
+        self.addButton = QPushButton("Add")
         self.addButton.clicked.connect(self.openAddDialog)
         self.deleteButton = QPushButton("Delete")
         self.deleteButton.clicked.connect(self.deleteContact)
@@ -104,7 +104,7 @@ class Window(QMainWindow):
         self.table.resizeColumnsToContents()
         self.table.setColumnHidden(0, True)
         # Create buttons
-        self.addButton = QPushButton("Add...")
+        self.addButton = QPushButton("Add")
         self.addButton.clicked.connect(self.openAddDialog_i)
         self.deleteButton = QPushButton("Delete")
         self.deleteButton.clicked.connect(self.deleteOrder)
@@ -139,7 +139,7 @@ class Window(QMainWindow):
         # Create total label
         r = self.salesTable.currentIndex()
         self.cursor.exec("select total from sales")
-        x =[]
+        x = []
         z= 0
         while self.cursor.next():
             y = self.cursor.value(0)
@@ -148,12 +148,19 @@ class Window(QMainWindow):
             z+=i
         self.totals = QLabel(f"Total: {round(z,2)}")
         # Create buttons
+        self.addButton = QPushButton("Add")
+        self.addButton.clicked.connect(self.openAddDialog_s)
+        self.deleteButton = QPushButton("Delete")
+        self.deleteButton.clicked.connect(self.deleteSale)
         self.clearAllButton = QPushButton("Clear All")
-        self.clearAllButton.clicked.connect(self.paid)
+        self.clearAllButton.clicked.connect(self.clearSales)
         # Lay out the GUI
         layout = QVBoxLayout()
+        layout.addWidget(self.addButton)
+        layout.addWidget(self.deleteButton)
+        layout.addStretch()
         layout.addWidget(self.clearAllButton)
-        layout.addWidget(self.totals)
+        self.layout.addWidget(self.totals)
         self.layout.addWidget(self.salesTable)
         self.layout.addLayout(layout)
 
@@ -177,6 +184,14 @@ class Window(QMainWindow):
             if x == '':
                 self.contactsModel.addContact(dialog.c_data)
 
+    def openAddDialog_s(self):
+
+        dialog = AddDialog_s(self)
+        if dialog.exec() == QDialog.Accepted:
+            self.salesModel.addEntry(dialog.data)
+            self.salesTable.resizeColumnsToContents
+            self.addTotals()
+
     def deleteContact(self):
         """Delete the selected contact from the database."""
         row = self.table.currentIndex().row()
@@ -191,6 +206,21 @@ class Window(QMainWindow):
 
         if messageBox == QMessageBox.Ok:
             self.contactsModel.deleteContact(row)
+
+    def deleteSale(self):
+        row = self.salesTable.currentIndex().row()
+        if row < 0:
+            return
+        messageBox = QMessageBox.warning(
+            self,
+            "Warning!",
+            f"Do you want to remove the selected sale?",
+            QMessageBox.Ok | QMessageBox.Cancel,
+        )
+
+        if messageBox == QMessageBox.Ok:
+            self.salesModel.deleteSale(row)
+            self.addTotals()
 
     def deleteOrder(self):
             """Delete the selected row from the database."""
@@ -242,12 +272,37 @@ class Window(QMainWindow):
         messageBox = QMessageBox.warning(
             self,
             "Warning!",
-            "Do you want to Clear All",
+            "Do you want to clear all contacts?",
             QMessageBox.Ok | QMessageBox.Cancel,
         )
 
         if messageBox == QMessageBox.Ok:
             self.contactsModel.clearContacts()
+
+    def clearSales(self):
+        messageBox = QMessageBox.warning(
+            self,
+            "Warning!",
+            "Do you want to clear all sales?",
+            QMessageBox.Ok | QMessageBox.Cancel,
+        )
+
+        if messageBox == QMessageBox.Ok:
+            self.salesModel.clearSales()
+            self.addTotals()
+
+
+    def addTotals(self):
+        self.cursor.exec("select total from sales")
+        x = []
+        z = 0
+        while self.cursor.next():
+            y = self.cursor.value(0)
+            x.append(float(y))
+        for i in x:
+            z += i
+        self.totals.setText(f"Total: {round(z, 2)}")
+
 
     def clearLayout(self):
         while self.layout.count():
@@ -298,7 +353,10 @@ class AddDialog(QDialog):
     def accept(self):
         """Accept the data provided through the dialog."""
         self.data = []
-        s
+        phone = self.phoneField.text()
+        if len(phone) == 10:
+            phone = "("+phone[:3]+") "+phone[3:6]+"-"+phone[6:]
+            self.phoneField.setText(phone)
         for field in (self.nameField, self.phoneField):
             if not field.text():
                 QMessageBox.critical(
@@ -390,5 +448,62 @@ class AddDialog_i(QDialog):
             return
         self.c_data.append(self.nameField.text())
         self.c_data.append(self.phoneField.text())
+        super().accept()
+
+class AddDialog_s(QDialog):
+    def __init__(self, parent=None):
+
+        """Initializer."""
+        super().__init__(parent=parent)
+        self.setWindowTitle("Add Sales")
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+        self.data = None
+        self.cursor = QSqlQuery()
+        self.setupUI()
+
+
+    def setupUI(self):
+
+        # Create line edits for data fields
+        self.orderField = QLineEdit()
+        self.orderField.setObjectName("Order #")
+        self.nameField = QLineEdit()
+        self.nameField.setObjectName("Name")
+        self.totalField = QLineEdit()
+        self.totalField.setObjectName("Total")
+        # Lay out the data fields
+        layout = QFormLayout()
+        layout.addRow("Order #:", self.orderField)
+        layout.addRow("Name:", self.nameField)
+        layout.addRow("Total:", self.totalField)
+        self.layout.addLayout(layout)
+        # Add standard buttons to the dialog and connect them
+        self.buttonsBox = QDialogButtonBox(self)
+        self.buttonsBox.setOrientation(Qt.Horizontal)
+        self.buttonsBox.setStandardButtons(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        )
+        self.buttonsBox.accepted.connect(self.accept)
+        self.buttonsBox.rejected.connect(self.reject)
+        self.layout.addWidget(self.buttonsBox)
+
+    def accept(self):
+        """Accept the data provided through the dialog."""
+        self.data = []
+        for field in (self.orderField, self.nameField, self.totalField):
+            if not field.text():
+                QMessageBox.critical(
+                    self,
+                    "Error!",
+                    f"You must provide a {field.objectName()}",
+                )
+                self.data = None  # Reset .data
+                return
+
+            self.data.append(field.text())
+
+        if not self.data:
+            return
         super().accept()
 
