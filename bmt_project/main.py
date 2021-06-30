@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# rpcontacts/main.py
+# bmt_project/main.py
 
 """This module provides RP Contacts application."""
 

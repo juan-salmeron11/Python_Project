@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# rpcontacts/database.py
+# bmt_project/database.py
 
 
 """This module provides a database connection."""

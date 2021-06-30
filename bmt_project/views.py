@@ -130,14 +130,13 @@ class Window(QMainWindow):
         self.inventoryButton.setEnabled(True)
         self.contactsButton.setEnabled(True)
         self.salesButton.setEnabled(False)
-
-
         # Create the sales table
         self.salesTable = QTableView()
         self.salesTable.setModel(self.salesModel.model)
         self.salesTable.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.salesTable.resizeColumnsToContents()
         self.salesTable.setColumnHidden(0, True)
+        # Create total label
         r = self.salesTable.currentIndex()
         self.cursor.exec("select total from sales")
         x =[]
@@ -148,14 +147,15 @@ class Window(QMainWindow):
         for i in x:
             z+=i
         self.totals = QLabel(f"Total: {round(z,2)}")
+        # Create buttons
+        self.clearAllButton = QPushButton("Clear All")
+        self.clearAllButton.clicked.connect(self.paid)
         # Lay out the GUI
         layout = QVBoxLayout()
-
+        layout.addWidget(self.clearAllButton)
+        layout.addWidget(self.totals)
         self.layout.addWidget(self.salesTable)
-        self.layout.addWidget(self.totals)
         self.layout.addLayout(layout)
-
-
 
     def openAddDialog(self):
         """Open the Add Contact dialog."""
