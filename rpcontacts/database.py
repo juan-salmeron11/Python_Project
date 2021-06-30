@@ -30,7 +30,8 @@ def _createInventoryTable():
             orderNum VARCHAR(40) NOT NULL,
             name VARCHAR(50) NOT NULL,
             phone VARCHAR(40),
-            total VARCHAR(40) NOT NULL
+            total VARCHAR(40) NOT NULL,
+            datePaid VARCHAR(40)
         )
         """
     )
@@ -48,6 +49,8 @@ def _createSalesTable():
         )
         """
     )
+
+
 
 def createAllTables():
     """Function that creates all tables from main once a connection is stablished"""
